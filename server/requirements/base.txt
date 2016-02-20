@@ -1,0 +1,11 @@
+django==1.9.2
+psycopg2
+Pillow==2.9.0
+python-dateutil
+twilio
+requests
+requests-oauthlib
+celery
+django-celery
+django-model-utils
+pytz
