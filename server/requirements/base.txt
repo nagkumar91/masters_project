@@ -9,3 +9,7 @@ celery
 django-celery
 django-model-utils
 pytz
+djangorestframework
+markdown
+django-filter
+drfdocs
