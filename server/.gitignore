@@ -61,3 +61,7 @@ target/
 
 #IDE
 .idea
+
+#settings
+saferide/settings/nagkumar.py
+saferide/settings/production.py
