@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
+from rest_framework_docs.views import DRFDocsView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^docs/', include('rest_framework_docs.urls')),
+    url(r'^docs/', login_required(DRFDocsView.as_view()), name='drfdocs'),
     url(r'', include('core.urls'))
 ]
