@@ -19,4 +19,5 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AppUser
-        exclude = ('user_permissions', 'groups',)
+        exclude = (
+        'user_permissions', 'groups', 'is_active', 'is_staff', 'is_superuser', 'verified', 'unique_code', 'id')

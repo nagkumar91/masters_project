@@ -4,7 +4,6 @@ from .views import CreateUser, get_token
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'create_user/', CreateUser.as_view()),
-    url(r'get_token/', get_token),
+    url(r'create_user/', CreateUser.as_view(), name="create_user"),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

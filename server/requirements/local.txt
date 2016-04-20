@@ -1,2 +1,3 @@
 -r base.txt
 fabric
+pytest==2.7.2
