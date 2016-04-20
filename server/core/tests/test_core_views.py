@@ -51,4 +51,40 @@ class TestCoreViews(APITestCase):
         response = self.client.get(reverse("drfdocs"))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
+    def test_create_user_and_request_for_pickup(self):
+        a = AppUser.objects.create(username="admin", email="admin@admin.com", password="admin", is_staff=True)
+        a.set_password("admin")
+        a.save()
+        request_payload_with_proper_params = {
+            "pickup_latitude": 37.336065,
+            "pickup_longitude": -121.886406,
+            "drop_off_latitude": 37.336065,
+            "drop_off_longitude": -121.886406
+        }
 
+        self.client.login(username="admin", password="admin")
+        response = self.client.post(reverse("request_ride"), request_payload_with_proper_params)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_post_with_no_pickup_details_latitude_throws_error(self):
+        a = AppUser.objects.create(username="admin", email="admin@admin.com", password="admin", is_staff=True)
+        a.set_password("admin")
+        a.save()
+        request_payload_with_improper_params = {
+            "pickup_longitude": -121.886406,
+            "drop_off_latitude": 37.336065,
+            "drop_off_longitude": -121.886406
+        }
+        self.client.login(username="admin", password="admin")
+        response = self.client.post(reverse("request_ride"), request_payload_with_improper_params)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_with_no_auth_will_return_no_auth_message(self):
+        request_payload_with_proper_params = {
+            "pickup_latitude": 37.336065,
+            "pickup_longitude": -121.886406,
+            "drop_off_latitude": 37.336065,
+            "drop_off_longitude": -121.886406
+        }
+        response = self.client.post(reverse("request_ride"), request_payload_with_proper_params)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

@@ -1,7 +1,7 @@
 # Serializers define the API representation.
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from .models import AppUser
+from .models import AppUser, RideRequest
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -20,4 +20,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppUser
         exclude = (
-        'user_permissions', 'groups', 'is_active', 'is_staff', 'is_superuser', 'verified', 'unique_code', 'id')
+            'user_permissions', 'groups', 'is_active', 'is_staff', 'is_superuser', 'verified', 'unique_code', 'id'
+        )
+
+
+class RideRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RideRequest

@@ -24,8 +24,28 @@ class AppUser(AbstractUser):
             self.unique_code = get_random_string(length=25)
         super(AppUser, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        return self.get_full_name()
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+class RideRequest(models.Model):
+    requested_by = models.ForeignKey(AppUser, related_name='ride_requests')
+    pickup_address = models.TextField(null=True, blank=True)
+    pickup_latitude = models.DecimalField(max_digits=14, decimal_places=10)
+    pickup_longitude = models.DecimalField(max_digits=14, decimal_places=10)
+    drop_off_address = models.TextField(null=True, blank=True)
+    drop_off_latitude = models.DecimalField(max_digits=14, decimal_places=10)
+    drop_off_longitude = models.DecimalField(max_digits=14, decimal_places=10)
+    request_time = models.DateTimeField(auto_now_add=True)
+    picked_up_at = models.DateTimeField(null=True, blank=True)
+    droped_off_at = models.DateTimeField(null=True, blank=True)
+
+    def __unicode__(self):
+        return self.requested_by.__unicode__()
+
