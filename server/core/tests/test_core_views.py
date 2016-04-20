@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -39,3 +40,15 @@ class TestCoreViews(APITestCase):
         response = self.client.post(reverse("create_user"), no_password_payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(count_of_users, AppUser.objects.all().count())
+
+    def test_api_docs_is_visible_if_user_is_logged_in(self):
+        AppUser.objects.create_superuser(username="admin", email="admin@admin.com", password="admin")
+        self.client.login(username="admin", password="admin")
+        response = self.client.get(reverse("drfdocs"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_api_docs_is_not_visible_for_non_logged_in_users(self):
+        response = self.client.get(reverse("drfdocs"))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+
