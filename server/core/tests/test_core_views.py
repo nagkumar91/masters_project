@@ -12,10 +12,19 @@ class TestCoreViews(APITestCase):
     def setUp(self):
         pass
 
+    def create_user(self):
+        a = AppUser.objects.create(username="admin", email="admin@admin.com", password="admin", is_staff=True)
+        a.set_password("admin")
+        a.save()
+        return a
+
     def test_sign_up_works_correctly_for_proper_fields(self):
         self.proper_user_fields = {
             "username": "testuser123",
             "password": "testuser123",
+            "email": "test@user.com",
+            "first_name": "Test",
+            "last_name": "User"
         }
         response = self.client.post(reverse('create_user'), self.proper_user_fields)
         u = AppUser.objects.get(username="testuser123")
@@ -52,9 +61,7 @@ class TestCoreViews(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_create_user_and_request_for_pickup(self):
-        a = AppUser.objects.create(username="admin", email="admin@admin.com", password="admin", is_staff=True)
-        a.set_password("admin")
-        a.save()
+        a = self.create_user()
         request_payload_with_proper_params = {
             "pickup_latitude": 37.336065,
             "pickup_longitude": -121.886406,
@@ -67,9 +74,7 @@ class TestCoreViews(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_post_with_no_pickup_details_latitude_throws_error(self):
-        a = AppUser.objects.create(username="admin", email="admin@admin.com", password="admin", is_staff=True)
-        a.set_password("admin")
-        a.save()
+        a = self.create_user()
         request_payload_with_improper_params = {
             "pickup_longitude": -121.886406,
             "drop_off_latitude": 37.336065,
@@ -88,3 +93,47 @@ class TestCoreViews(APITestCase):
         }
         response = self.client.post(reverse("request_ride"), request_payload_with_proper_params)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_successful_login(self):
+        a = self.create_user()
+        request_payload = {
+            "username": "admin",
+            "password": "admin"
+        }
+        response = self.client.post(reverse("login_appuser"), request_payload)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(json.loads(response.content)['auth_token'], Token.objects.get(user=a).key)
+
+    def test_login_no_username(self):
+        a = self.create_user()
+        request_payload = {
+            "password": "admin"
+        }
+        response = self.client.post(reverse("login_appuser"), request_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_no_password(self):
+        a = self.create_user()
+        request_payload = {
+            "username": "admin"
+        }
+        response = self.client.post(reverse("login_appuser"), request_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_incorrect_username(self):
+        a = self.create_user()
+        request_payload = {
+            "username": "admin1",
+            "password": "admin"
+        }
+        response = self.client.post(reverse("login_appuser"), request_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_incorrect_password(self):
+        a = self.create_user()
+        request_payload = {
+            "username": "admin",
+            "password": "admin1"
+        }
+        response = self.client.post(reverse("login_appuser"), request_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
